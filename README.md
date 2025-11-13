@@ -1,1 +1,1 @@
-Repository for software for spacegrant 2025-2026
+Repository for Software for SpaceGrant 2025-2026
