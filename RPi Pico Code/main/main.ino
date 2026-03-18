@@ -1,31 +1,53 @@
-// Main program
-// Last author: Max Smith
-//
-// Code for the pi pico to get information from the main pi and
-// controls the motors
-//
-// This main needs to be changed for each robot
 
-// Needed header files
 #include "robot.h"
+Robot myRobot;
 
-Robot NOMAD;
+int pushButton = 50;
+int ran_course = 0;
+
+/////////////////////////////////////////////////////////////////
+
+// gains
+float Kp_v = 5;  
+float Ki_v = 0.02;
+float Kd_v = 0.1; 
+float Kp_pos_v = 1;
+float Kv_v = 0.5; 
+float Ks_v = 2;
+
+float Kp_w = 8;
+float Ki_w = 0.01;
+float Kd_w = 0.05;
+float Kp_pos_w = 1;
+float Kv_w = 1;
+float Ks_w = 1;
+
+float V_MAX = 83.17 * 0.95; // cm/s
+float W_MAX = 663.27 * 0.95; // deg/s
+
+float wheelBase = 29; // ?? it works cm
+
+/////////////////////////////////////////////////////////////////
+
 
 void setup() 
 {
-  NOMAD.initializePins();
+  Serial.begin(9600);
 
-  // Set the speeds for motor to turn acuratly
-  NOMAD.driveSpeed_forward = 1.0; // Needs to be changed per robot
-  NOMAD.driveSpeed_reverse = 1.0; // Needs to be changed per robot
-  NOMAD.turnSpeed_left = 1.0; // Needs to be changed per robot
-  NOMAD.turnSpeed_right = 1.0; // Needs to be changed per robot
+  myRobot.initializePins();
+
+  myRobot.set_wheelbase(wheelBase);
+
+  pinMode(pushButton, INPUT_PULLUP);
+
+  myRobot.L_speedControl.setGains(Kp_v, Ki_v, Kd_v, V_MAX, Kp_pos_v, Kv_v, Ks_v);
+  myRobot.R_speedControl.setGains(Kp_v, Ki_v, Kd_v, V_MAX, Kp_pos_v, Kv_v, Ks_v);
+  myRobot.headingControl.setGains(Kp_w, Ki_w, Kd_w, W_MAX, Kp_pos_w, Kv_w, Ks_w);
+
 }
 
 void loop() 
 {
-  // wait for directions from pi
-
-  // act on direction
-
+  
+  
 }

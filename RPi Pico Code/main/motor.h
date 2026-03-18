@@ -1,65 +1,55 @@
-// Motor class
-// Last author: Max Smith
-// 
-// How to use
-// Motor "motor name"{IN1 pin, IN2 pin, ENA pin}
 
-#pragma once
-#include <Arduino.h>
+#define ENCODER_USE_INTERRUPTS
+#include <Encoder.h>
 
-class Motor 
-{
-private: 
-  int ena, in1, in2;
-  volatile float velocity = 0.0f;
-
+class Motor {
+private:
+  int ena, in1, in2, enc1, enc2;
 public:
-  Motor(int IN1pin, int IN2pin, int ENApin)
-    : in1(IN1pin), in2(IN2pin), ena(ENApin) {}
+  Encoder encoder;
+  Motor(int ENApin, int IN1pin, int IN2pin, int encPin1, int encPin2)
+    : ena(ENApin), in1(IN1pin), in2(IN2pin), enc1(encPin1), enc2(encPin2), encoder(encPin1, encPin2) {}
 
-  // Set pins as output
-  void initializePins()
-  {
+  void initializePins() {
     pinMode(in1, OUTPUT);
     pinMode(in2, OUTPUT);
     pinMode(ena, OUTPUT);
-    stop();
+    pinMode(enc1, INPUT_PULLUP);
+    pinMode(enc2, INPUT_PULLUP);
   }
+
+  // Encoder functions
+  int32_t readCounts() {
+    return encoder.read();
+  }
+
+  void resetCounts() {
+    encoder.write(0);
+  }
+
 
   // Motor driver functions
-  void run(int pwm)
-  {
-    pwm = contrain(pwm, -255, 255);
+  void run(float speed) {
+    int pwm, reverse;
+    if (speed >= 0) {
+      reverse = 0;
+      pwm = int(speed);
+    } else {
+      reverse = 1;
+      pwm = abs(int(speed));
+    }
+    if (pwm > 255) {
+      pwm = 255;
+    }
 
-    if (speed >= 0)
-    {
-      digitalWrite(in1, HIGH);
-      digitalWrite(in2, LOW);
-      analogWrite(ena, pwm);
-    }
-    else
-    {
-      digitalWrite(in1, LOW);
-      digitalWrite(in2, HIGH);
-      analogWrite(ena, -pwm);
-    }
+    digitalWrite(in1, !reverse);
+    digitalWrite(in2, reverse);
+    analogWrite(ena, pwm);
   }
 
-  void stop()
-  {
-    digitalWrite(in1, LOW);
-    digitalWrite(in2, LOW);
+  void stop() {
+    digitalWrite(in1, 0);
+    digitalWrite(in2, 0);
     analogWrite(ena, 0);
   }
-
-  float getVelocity()
-  {
-    // use encoders to get a velocity out
-  }
-
-  void setVelocity(float v)
-  {
-    velocity = v;
-  }
-  
 };
