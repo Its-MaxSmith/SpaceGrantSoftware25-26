@@ -12,7 +12,7 @@ import argparse
 # SETTINGS
 ############################################
 
-OBSTACLE_DISTANCE_MM = 1500
+OBSTACLE_DISTANCE_MM = 150
 FORWARD_TARGET_M = 1.0
 MAX_STEERING_RAD = math.radians(45)
 
@@ -68,7 +68,8 @@ def find_valley(depthFrame):
 ############################################
 
 def detect_walls(depthFrame):
-
+    if True:
+        return 0,0,0
     depth = depthFrame.astype(np.float32)
     obstacle_mask = depth < OBSTACLE_DISTANCE_MM
 
@@ -200,13 +201,15 @@ def visualize(depthFrame,valley_index,free_space,x,y,theta,left_wall,right_wall,
     cv2.putText(vis,"White  - Camera Center",(20,legend_y),
                 cv2.FONT_HERSHEY_SIMPLEX,0.5,(255,255,255),2)
 
-    cv2.imshow("Depth Navigation",vis)
+    cv2.imshow("Depth Nav",vis)
 
 ############################################
 # MAIN LOOP
 ############################################
 
 def main(video_mode):
+
+    cv2.namedWindow("Depth Nav", cv2.WINDOW_NORMAL)
 
     ser = connect_to_pico()
 
