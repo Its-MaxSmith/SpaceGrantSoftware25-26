@@ -2,9 +2,6 @@
 #include "robot.h"
 Robot myRobot;
 
-int pushButton = 50;
-int ran_course = 0;
-
 /////////////////////////////////////////////////////////////////
 
 // gains
@@ -48,6 +45,9 @@ void setup()
 
 void loop() 
 {
-  
-  
+  // Read from camera
+  // Dertermine the target theta
+  // Determine x and y target from distance and new theta
+  // Call goToPose
+    
 }
