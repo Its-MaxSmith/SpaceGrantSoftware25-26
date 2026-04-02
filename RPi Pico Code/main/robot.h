@@ -141,7 +141,7 @@ public:
     Pose target;
     target.set(x, y, theta);
 
-    char navState = DRIVE_TO_POINT;
+    char navState = TURN_TO_ANGLE;
 
     lastTime = millis();
 
@@ -163,25 +163,7 @@ public:
 
       switch (navState)
       {
-        // Moves robot to the next x y position
-        case DRIVE_TO_POINT:
-
-          if (atXY(target))
-          {
-            navState = TURN_TO_ANGLE;
-
-            headingControl.reset();
-
-            cmd_vel.set(0, 0);
-
-            break;
-          }
-
-          computeCmd(target, dt);
-
-          break;
-
-        // Turns the robot to the desired angle
+        // Turn to desired angle
         case TURN_TO_ANGLE:
         {
           float err = target.theta - pose.theta;
@@ -193,7 +175,7 @@ public:
 
           if (fabs(err) < ANGLE_TOLERANCE)
           {
-            navState = FINISHED;
+            navState = DRIVE_TO_POINT;
             cmd_vel.set(0, 0);
             break;
           }
@@ -208,6 +190,25 @@ public:
           break;
         }
 
+        // Moves robot to the next x y position
+        case DRIVE_TO_POINT:
+
+          if (atXY(target))
+          {
+            navState = FINISH;
+
+            headingControl.reset();
+
+            cmd_vel.set(0, 0);
+
+            break;
+          }
+
+          computeCmd(target, dt);
+
+          break;
+
+        
         // Sets velocities to 0 and stops robot
         case FINISHED:
           cmd_vel.set(0, 0);
