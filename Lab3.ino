@@ -1,0 +1,85 @@
+
+int poses[3][8] = {
+  { 140, 140, 200, 200, 100, 100, 0, 0 },
+  { 0, 90, 90, -90, -90, -150, -150, 0 },
+  { 90, 0, -90, -180, -90, -180, -270, 0 }
+};
+
+#include "robot.h"
+Robot myRobot;
+
+int pushButton = 50;
+int ran_course = 0;
+
+/////////////////////////////////////////////////////////////////
+
+// gains
+float Kp_v = 5;  
+float Ki_v = 0.02;
+float Kd_v = 0.1; 
+float Kp_pos_v = 1;
+float Kv_v = 0.5; 
+float Ks_v = 2;
+
+float Kp_w = 8;
+float Ki_w = 0.01;
+float Kd_w = 0.05;
+float Kp_pos_w = 1;
+float Kv_w = 1;
+float Ks_w = 1;
+
+float V_MAX = 83.17 * 0.95; // cm/s
+float W_MAX = 663.27 * 0.95; // deg/s
+
+float wheelBase = 25; // ?? it works cm
+
+/////////////////////////////////////////////////////////////////
+
+
+void setup() 
+{
+  Serial.begin(9600);
+
+  myRobot.initializePins();
+
+  myRobot.set_wheelbase(wheelBase);
+
+  myRobot.L_speedControl.setGains(Kp_v, Ki_v, Kd_v, V_MAX, Kp_pos_v, Kv_v, Ks_v);
+  myRobot.R_speedControl.setGains(Kp_v, Ki_v, Kd_v, V_MAX, Kp_pos_v, Kv_v, Ks_v);
+  myRobot.headingControl.setGains(Kp_w, Ki_w, Kd_w, W_MAX, Kp_pos_w, Kv_w, Ks_w);
+
+
+  Serial.println("Setup done");
+}
+
+void loop() 
+{
+  previousMillis = currentMillis;
+
+    if (Serial.available() > 0) 
+    {
+      // Read the incoming string until the newline character
+      String incomingData = Serial.readStringUntil('\n');
+
+      // Parse the "distance,angle" format
+      int commaIndex = incomingData.indexOf(',');
+      
+      if (commaIndex != -1) 
+      {
+        float distance = incomingData.substring(0, commaIndex).toFloat();
+        float angle = incomingData.substring(commaIndex + 1).toFloat();
+
+        float targetTheta = myRobot.pose.theta + angle;
+
+        float targetX = myRobot.pose.x + (distance * cos(targetTheta * PI / 180.0));
+        float targetY = myRobot.pose.y + (distance * sin(targetTheta * PI / 180.0));
+
+        // 3. Execute the movement
+        myRobot.goToPose(targetX, targetY, targetTheta);
+      }
+    }
+
+  myRobot.testAngularLimits();
+  myRobot.testLinearLimits();
+
+}
