@@ -1,0 +1,2 @@
+source stereo_env/bin/activate
+python valley.py
